@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../models/expense.dart';
 
-
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
 
@@ -16,12 +15,23 @@ class Expenses extends StatefulWidget {
 
 class _ExpensesState extends State<Expenses> {
   final List<Expense> _registeredExpenses = [
-    Expense(title: 'Work Order', amount: 32.99, date: DateTime.now(), category: Category.work ),
-    Expense(title: 'Amazon', amount: 49.99, date: DateTime.now(), category: Category.leisure )
+    Expense(
+        title: 'Work Order',
+        amount: 32.99,
+        date: DateTime.now(),
+        category: Category.work),
+    Expense(
+        title: 'Amazon',
+        amount: 49.99,
+        date: DateTime.now(),
+        category: Category.leisure)
   ];
 
   void _openAddExpenseOverlay() {
-    showModalBottomSheet(context: context, builder: (context) => NewExpense(onAddExpense: _addExpense));
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => NewExpense(onAddExpense: _addExpense));
   }
 
   void _addExpense(Expense expense) {
@@ -30,20 +40,23 @@ class _ExpensesState extends State<Expenses> {
     });
   }
 
+  void _removeExpense(Expense expense) {
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: _openAddExpenseOverlay,
-            icon: const Icon(Icons.add))
-        ]
-      ),
+      appBar: AppBar(actions: [
+        IconButton(
+            onPressed: _openAddExpenseOverlay, icon: const Icon(Icons.add))
+      ]),
       body: Column(
         children: [
           // const Text('The chart'),
-          Expanded(child: ExpensesList(expenses: _registeredExpenses))
+          Expanded(child: ExpensesList(expenses: _registeredExpenses, onRemoveExpense: _removeExpense,))
         ],
       ),
     );
