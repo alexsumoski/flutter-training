@@ -30,9 +30,10 @@ class _ExpensesState extends State<Expenses> {
 
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (context) => NewExpense(onAddExpense: _addExpense));
+      useSafeArea: true,
+        isScrollControlled: true,
+        context: context,
+        builder: (context) => NewExpense(onAddExpense: _addExpense));
   }
 
   void _addExpense(Expense expense) {
@@ -47,43 +48,49 @@ class _ExpensesState extends State<Expenses> {
       _registeredExpenses.remove(expense);
     });
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar( 
-      SnackBar(
-        duration: const Duration(seconds: 4),
-        content: const Text('text deleted'),
-        action: SnackBarAction(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 4),
+      content: const Text('text deleted'),
+      action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
             setState(() {
               _registeredExpenses.insert(expenseIndex, expense);
             });
-          }
-        ),
-      )
-    );
+          }),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget mainContent = Center(
+    final width = MediaQuery.of(context).size.width;
+
+    Widget mainContent = const Center(
       child: Text('text'),
     );
 
     if (_registeredExpenses.isNotEmpty) {
-      mainContent = ExpensesList(expenses: _registeredExpenses, onRemoveExpense: _removeExpense);
+      mainContent = ExpensesList(
+          expenses: _registeredExpenses, onRemoveExpense: _removeExpense);
     }
 
     return Scaffold(
-      appBar: AppBar(actions: [
-        IconButton(
-            onPressed: _openAddExpenseOverlay, icon: const Icon(Icons.add))
-      ]),
-      body: Column(
-        children: [
-          Chart(expenses: _registeredExpenses),
-          Expanded(child: mainContent)
-        ],
-      ),
-    );
+        appBar: AppBar(actions: [
+          IconButton(
+              onPressed: _openAddExpenseOverlay, icon: const Icon(Icons.add))
+        ]),
+        body: width < 600
+            ? Column(
+                children: [
+                  Expanded(child: Chart(expenses: _registeredExpenses)),
+                  Expanded(child: mainContent)
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(child: Chart(expenses: _registeredExpenses)),
+                  Expanded(child: mainContent)
+                ],
+              ));
   }
 }
